@@ -50,7 +50,7 @@ def calculate(tablica, n):
 
 
 def Schrage(tablica, n):
-    k = 1
+    k = 0
     # G - zbiór zadań gotowych do realizacji
     G = []
     # N - zbiór zadań nieuszeregowanych
@@ -58,19 +58,32 @@ def Schrage(tablica, n):
     # t - zmienna pomocnicza symbolizująca chwilę czasową
     # t = min(r_j) z N
     t = min(N, key=lambda x: x[0])[0]
-    wynik = []
+    # wynik - pusta tablica o wielkości n
+    wynik = [None]*n
+    # while G nie pusty lub N nie pusty
     while len(G) != 0 or len(N) != 0:
-        while len(N) != 0 and t <= min(N, key=lambda x: x[0])[0]:
+        # while N nie pusty i min r_j z N mniejszy lub równy t
+        while len(N) != 0 and t >= min(N, key=lambda x: x[0])[0]:
+            # j = arg min r_j z N (minimum z N posortowane po r)
             j = min(N, key=lambda x: x[0])
+            # G = G z j
             G.append(j)
+            # N = N bez j
             N.remove(j)
+        # jeżeli G nie pusty
         if len(G) != 0:
+            # j = arg max q_j z G (maximum z G posortowane po q)
             j = max(G,key=lambda x: x[2])
+            # G = G bez j
             G.remove(j)
-            wynik.append(j)
+            # wynik z indeksem k = j
+            wynik[k]=j
+            # t = t + p_j
             t = t + j[1]
+            # k++
             k = k + 1
         else:
+            # t = min r_j z N (minimum z N posortowane po r)
             t = min(N, key=lambda x: x[0])[0]
     return wynik
 
@@ -90,15 +103,17 @@ def lab1(pliki):
         print("Wynik posortowany:", wynik)
         print(kolejnosc(dane))
 
+def lab2(pliki):
+    for j in range(0, 6):
+        dane = pobierz_dane(pliki[j])
+        n = dane[0][0]
+        r = dane[0][1]
+        dane = list(dane[1:n + 1])
+        dane = tuple(dane)
+        wynikalg = Schrage(dane, n)
+
+        print(kolejnosc(wynikalg))
+        print(calculate(wynikalg, n))
 
 pliki = ["data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt"]
-dane = pobierz_dane(pliki[0])
-n = dane[0][0]
-r = dane[0][1]
-dane = list(dane[1:n + 1])
-dane=tuple(dane)
-print(kolejnosc(dane))
-wynikalg=Schrage(dane, n)
-
-print(kolejnosc(wynikalg))
-print(calculate(wynikalg,n))
+lab2(pliki)
