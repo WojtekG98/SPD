@@ -1,5 +1,7 @@
 import os
 import time
+import heapq
+import queue
 
 def pobierz_dane(plik):
     """
@@ -25,8 +27,8 @@ def pobierz_dane(plik):
 
 def kolejnosc(lista):
     y = []
-    for i in range(len(lista)):
-        y.append(lista[i][3])
+    for item in lista:
+        y.append(item[3])
     return y
 
 
@@ -65,22 +67,31 @@ def Schrage(tablica, n):
 def Schrage_queue(tablica, n):
     k = 0
     G = []                                        # G - zbiór zadań gotowych do realizacji
-    N = list(tablica)                             # N - zbiór zadań nieuszeregowanych
-    N.sort(reverse = True,key = lambda x: x[0])   # sortujemy rosnąco, bo pop() wyciąga ostatnia wartość
-    t = N[len(N)-1][0]                            # t - zmienna pomocnicza symbolizująca chwilę czasową t = min(r_j) z N
+    heap_N = list(tablica)                        # heap_N - zbiór zadań nieuszeregowanych
+    heapq.heapify(heap_N)                         # zrob z tablicy heap w czasie liniowym
+    t = heap_N[0][0]                              # t - zmienna pomocnicza symbolizująca chwilę czasową t = min(r_j) z N
     wynik = [None] * n                            # wynik - pusta tablica o wielkości n
-    while len(G) != 0 or len(N) != 0:             # while G nie pusty lub N nie pusty
-        while len(N) != 0 and t >= N[0][0]:       # while N nie pusty i min r_j z N mniejszy lub równy t
-            j = N.pop()                           # j = arg min r_j z N (minimum z N posortowane po r)
-            G.append(j)                           # G = G z j
-            G.sort(key = lambda x: x[2])          # sortujemy malejąco, bo pop() wyciąga ostatnią wartość
+    while len(G) != 0 or len(heap_N) != 0:             # while G nie pusty lub N nie pusty
+        while len(heap_N) != 0 and t >= heap_N[0][0]:       # while heap_N nie pusty i min r_j z N mniejszy lub równy t
+            j = heapq.heappop(heap_N)             # j = arg min r_j z heap_N
+            rj=j[0]                               # takie bajery zeby sortowalo po q i rosnaco
+            qj=j[2]
+            j=list(j)
+            j[0]=-qj
+            j[2]=rj
+            heapq.heappush(G,j)                   # G = G z j
         if len(G) != 0:                           # jeżeli G nie pusty
-            j = G.pop()                           # j = arg max q_j z G (maximum z G posortowane po q)
+            j = heapq.heappop(G)                  # j = arg max q_j z G
+            qj=j[0]                               # takie bajery zeby sortowalo po q i rosnaco
+            rj=j[2]
+            j=list(j)
+            j[0]=rj
+            j[2]=-qj
             wynik[k] = j                          # wynik z indeksem k = j
             t = t + j[1]                          # t = t + p_j
             k = k + 1                             # k++
         else:
-            t = N[0][0]                           # t = min r_j z N (minimum z N posortowane po r)
+            t = heap_N[0][0]                          # t = min r_j z N (minimum z N posortowane po r)
     return wynik
 
 def SchragePmtn(tablica, n):
@@ -110,6 +121,48 @@ def SchragePmtn(tablica, n):
             Cmax = max(Cmax, t + j[2])            # Cmax = max(Cmax,t+q_j)
         else:                                     # jeżeli G pusty
             t = min(N, key=lambda x: x[0])[0]     # t = min r_j z N (minimum z N posortowane po r)
+    return Cmax
+
+def SchragePmtn_queue(tablica, n):
+    Cmax = 0                                      # Cmax = 0
+    G = []                                        # G - zbiór zadań gotowych do realizacji
+    N = list(tablica)                             # N - zbiór zadań nieuszeregowanych
+    heapq.heapify(N)
+    t = 0                                         # t - zmienna pomocnicza symbolizująca chwilę czasową
+    l = [0,0,0,0]                                 # l = 0
+    l[2]=100000000                                # q0 = nieskonczonosc
+    while len(G) != 0 or len(N) != 0:             # while G nie pusty lub N nie pusty
+                                                  # while N nie pusty i min r_j z N mniejszy lub równy t
+        while len(N) != 0 and t >= N[0][0]:
+            j = heapq.heappop(N)                  # j = arg min r_j z N (minimum z N posortowane po r) i N = N bez j
+            rj=j[0]                               # takie bajery zeby sortowalo po q i rosnaco
+            qj=j[2]
+            j=list(j)
+            j[0]=-qj
+            j[2]=rj
+            heapq.heappush(G,j)                   # G = G z j
+            if qj > l[2]:                         # jeżeli q_j większe od q_l
+                l=list(l)                         # p_l-1 = t - r_j
+                l[1] = t - rj
+                t = rj                            # t = r_j
+                if l[1] > 0:                      # jeżeli p_l-1 > 0
+                    rl=l[0]                       # takie bajery zeby sortowalo po q i rosnaco
+                    ql=l[2]
+                    l[0]=-ql
+                    l[2]=rl
+                    heapq.heappush(G, l)          # G = G z l
+        if len(G) != 0:                           # jeżeli G nie pusty
+            j = heapq.heappop(G)                  # j = arg max q_j z G i  G = G bez j
+            qj=j[0]                               # takie bajery zeby sortowalo po q i rosnaco
+            rj=j[2]
+            j=list(j)
+            j[0]=rj
+            j[2]=-qj
+            l=j                                   # l = j
+            t = t + j[1]                          # t = t + p_j
+            Cmax = max(Cmax, t + j[2])            # Cmax = max(Cmax,t+q_j)
+        else:                                     # jeżeli G pusty
+            t = N[0][0]                           # t = min r_j z N (minimum z N posortowane po r)
     return Cmax
 
 def Carlier(tablica, n):
@@ -143,28 +196,32 @@ def lab1(pliki):
 
 
 def lab2(pliki):
-    for j in range(0, 6):
+    for j in range(0, len(pliki)):
         dane = pobierz_dane(pliki[j])
         n = dane[0][0]
         r = dane[0][1]
         dane = list(dane[1:n + 1])
         dane = tuple(dane)
-        start_queue = time.time()
+        start_queue = time.time_ns()
         wynikalg_queue = Schrage_queue(dane, n)
-        end_queue = time.time()
-        start = time.time()
+        Cmax_queue=calculate(wynikalg_queue,n)
+        end_queue = time.time_ns()
+        start = time.time_ns()
         wynikalg = Schrage(dane,n)
-        end = time.time()
-        print("Czas Schrage:",end-start)
-        print("Czas Schrage_queue",end_queue-start_queue)
-        print("Nazwa pliku: ", pliki[j])
-        print("kolejnosc wyniku Schrage: ", kolejnosc(wynikalg))
-        print("Cmax=", calculate(wynikalg, n))
-        print("kolejnosc wyniku Schrage_queue: ", kolejnosc(wynikalg_queue))
-        print("Cmax=", calculate(wynikalg, n))
-        print("Cmax SchragePmtn=", SchragePmtn(dane, n))
+        Cmax=calculate(wynikalg,n)
+        end = time.time_ns()
+        print("\nNazwa pliku: ", pliki[j])
+        print("Schrage Cmax=", Cmax,", w czasie:",(end-start)/1000000," ms")
+        print("Schrage_queue Cmax=", Cmax_queue,", w czasie:",(end_queue-start_queue)/1000000," ms")
+        start=time.time_ns()
+        Cmax=SchragePmtn(dane, n)
+        end=time.time_ns()
+        print("Cmax SchragePmtn=", Cmax,", w czasie:",(end-start)/1000000," ms")
+        start=time.time_ns()
+        Cmax=SchragePmtn_queue(dane, n)
+        end=time.time_ns()
+        print("Cmax SchragePmtn_queue=", Cmax,", w czasie:",(end-start)/1000000," ms")
 
 
 pliki = ["data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt"]
 lab2(pliki)
-
