@@ -50,6 +50,12 @@ def BF(tablica):
     bruteforce(tablica, wynik)
     return wynik
 
+def kolejnosc(lista, m):
+    y = []
+    for item in lista:
+        y.append(item[m])
+    return y
+
 
 def Cmax(tab, n, m):
     G = graf_rozwiazania(tab, n, m)
@@ -62,7 +68,7 @@ def Cmax(tab, n, m):
         for j in range(0, n):
                 S[i][j] = max(C[i][j - 1], C[i - 1][j])
                 C[i][j] = S[i][j] + G[i][j]
-    return C[m - 1][n - 1]
+    return [C[m - 1][n - 1], kolejnosc(tab, m)]
 
 
 def zad1(files):
@@ -71,8 +77,11 @@ def zad1(files):
         n = dane[0][0]
         m = dane[0][1]
         dane = dane[1:]
+        j = 0
         for item in dane:
             dane[dane.index(item)] = item[1::2]
+            dane[dane.index(item[1::2])].append(j)
+            j = j + 1
         print(files[i], Cmax(dane, n, m), "n=", n, "m=", m)
         kombinacje = BF(dane)
         wynik = []
