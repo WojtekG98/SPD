@@ -70,6 +70,13 @@ def Cmax(tab, n, m):
                 C[i][j] = S[i][j] + G[i][j]
     return [C[m - 1][n - 1], kolejnosc(tab, m)]
 
+def przeksztalc(tab):
+    j = 0
+    for item in tab:
+        tab[tab.index(item)] = item[1::2]
+        tab[tab.index(item[1::2])].append(j)
+        j = j + 1
+    return tab
 
 def zad1(files):
     for i in range(0, len(files)):
