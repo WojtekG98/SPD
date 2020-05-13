@@ -98,5 +98,5 @@ def zad1(files):
 
 
 if __name__ == "__main__":
-    pliki = ["data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt"]
+    pliki = ["data000.txt","data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt"]
     zad1(pliki)
