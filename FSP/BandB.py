@@ -1,14 +1,11 @@
 import fsp_1
 import math
 import copy
+import time
 import numpy as np
 
 def LowerBound1(tab, N):
     G = np.array(fsp_1.graf_rozwiazania(tab + N, len(tab) + len(N), len(tab[0]) - 1))
-    #print('len(tab)', len(tab))
-    #print('tab', tab)
-    #print('N', N)
-    #print('G:', G)
     wynik = []
     C = np.zeros(shape=[len(G), len(G[0])])
     S = np.zeros(shape=[len(G), len(G[0])])
@@ -18,19 +15,73 @@ def LowerBound1(tab, N):
             C[i][j] = S[i][j] + G[i][j]
     for i in range(0, len(C)):
         wynik.append(C[i][len(tab)-1] + sum(G[i][len(tab):]))
-    #print(wynik)
+    return max(wynik)
 
-    #i = 0
-    #for item in G_N:
-    #    wynik.append(C[i][len(tab) - 1] + sum(item))
-    #    i += 1
+
+def LowerBound2(tab, N):
+    G = np.array(fsp_1.graf_rozwiazania(tab + N, len(tab) + len(N), len(tab[0]) - 1))
+    wynik = []
+    C = np.zeros(shape=[len(G), len(G[0])])
+    S = np.zeros(shape=[len(G), len(G[0])])
+    for i in range(0, len(tab[0]) - 1):
+        for j in range(0, len(tab + N)):
+            S[i][j] = max(C[i][j - 1], C[i - 1][j])
+            C[i][j] = S[i][j] + G[i][j]
+    for i in range(0, len(C)):
+        pom = 0
+        for k in range(i+1, len(C)):
+            pom += min(G[k])
+        wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]) + pom)
+    return max(wynik)
+
+
+def LowerBound3(tab, N):
+    G = np.array(fsp_1.graf_rozwiazania(tab + N, len(tab) + len(N), len(tab[0]) - 1))
+    wynik = []
+    C = np.zeros(shape=[len(G), len(G[0])])
+    S = np.zeros(shape=[len(G), len(G[0])])
+    for i in range(0, len(tab[0]) - 1):
+        for j in range(0, len(tab + N)):
+            S[i][j] = max(C[i][j - 1], C[i - 1][j])
+            C[i][j] = S[i][j] + G[i][j]
+    for i in range(0, len(C)):
+        pom = 0
+        for k in range(i+1, len(C)):
+            pom += min(G[k][len(tab):])
+        wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]) + pom)
+    return max(wynik)
+
+
+def LowerBound4(tab, N):
+    G = np.array(fsp_1.graf_rozwiazania(tab + N, len(tab) + len(N), len(tab[0]) - 1))
+    wynik = []
+    C = np.zeros(shape=[len(G), len(G[0])])
+    S = np.zeros(shape=[len(G), len(G[0])])
+    for i in range(0, len(tab[0]) - 1):
+        for j in range(0, len(tab + N)):
+            S[i][j] = max(C[i][j - 1], C[i - 1][j])
+            C[i][j] = S[i][j] + G[i][j]
+    for i in range(0, len(C)):
+        pom = []
+        for k in range(i+1, len(C)):
+            print(i, k ,len(C))
+            print(G[k])
+            print(G[k][len(tab):])
+            print(sum(G[k][len(tab):]))
+            pom.append(sum(G[k][len(tab):]))
+        if len(pom) != 0:
+            print(min(pom))
+            print(C[i][len(tab) - 1] + sum(G[i][len(tab):]))
+            print(fsp_1.Cmax(tab+N, len(tab + N), len(tab[0])-1))
+            wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]) + min(pom))
+        else:
+            wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]))
     return max(wynik)
 
 
 LB = 0
 pi_star = [0]
 UB = math.inf
-
 
 def BNB(j, N, pi):
     global LB
@@ -39,7 +90,8 @@ def BNB(j, N, pi):
     pi.append(j)
     N.remove(j)
     if N:
-        LB = LowerBound1(copy.deepcopy(pi), copy.deepcopy(N))
+        # tu wybieramy która wersją LB liczymy
+        LB = LowerBound4(copy.deepcopy(pi), copy.deepcopy(N))
         if LB <= UB:
             for j in N:
                 BNB(j, copy.deepcopy(N), copy.deepcopy(pi))
@@ -77,11 +129,15 @@ def zad3(file):
             dane[dane.index(item)] = item[1::2]
             dane[dane.index(item[1::2])].append(j)
             j = j + 1
+        # tu wybieramy która wersja UB czy bardzo duża liczba czy Cmax naturalnej
+        UB = math.inf
+        # UB = fsp_1.Cmax(dane, n, m)[0]
+        start = time.time_ns()
         odp = BnB(dane)
-        #print(odp)
-        print(fsp_1.Cmax(odp, n, m))
+        end = time.time_ns()
+        print('czas:', (end-start)/1000000, "ms, cmax:", fsp_1.Cmax(odp, n, m))
 
 
 if __name__ == "__main__":
-    pliki = ("data000.txt", "data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt")
+    pliki = ("data000.txt", "data001.txt")#, "data002.txt", "data003.txt")#, "data004.txt", "data005.txt", "data006.txt")
     zad3(pliki)
