@@ -72,6 +72,7 @@ def Cmax(tab, n, m):
 
 def przeksztalc(tab):
     j = 0
+    tab.remove(tab[0])
     for item in tab:
         tab[tab.index(item)] = item[1::2]
         tab[tab.index(item[1::2])].append(j)
