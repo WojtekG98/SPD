@@ -135,9 +135,13 @@ def zad3(file):
         start = time.time_ns()
         odp = BnB(dane)
         end = time.time_ns()
+        file1 = open("MyFile.txt", "w")
+        string = "czas:", str((end-start)/1000000), "ms, cmax:", str(fsp_1.Cmax(odp, n, m)[0])
         print('czas:', (end-start)/1000000, "ms, cmax:", fsp_1.Cmax(odp, n, m))
+        file1.write(''.join(string))
+        file1.close()
 
 
 if __name__ == "__main__":
-    pliki = ("data000.txt", "data001.txt")#, "data002.txt", "data003.txt")#, "data004.txt", "data005.txt", "data006.txt")
+    pliki = ("data000.txt", "data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt")
     zad3(pliki)
