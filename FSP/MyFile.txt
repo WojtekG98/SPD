@@ -1,1 +1,1 @@
-czas:294.9091ms, cmax:617
+czas:1772.6259ms, cmax:650

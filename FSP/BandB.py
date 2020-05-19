@@ -64,16 +64,9 @@ def LowerBound4(tab, N):
     for i in range(0, len(C)):
         pom = []
         for k in range(i+1, len(C)):
-            print(i, k ,len(C))
-            print(G[k])
-            print(G[k][len(tab):])
-            print(sum(G[k][len(tab):]))
-            pom.append(sum(G[k][len(tab):]))
+            pom.append(min(G[k][len(tab):]))
         if len(pom) != 0:
-            print(min(pom))
-            print(C[i][len(tab) - 1] + sum(G[i][len(tab):]))
-            print(fsp_1.Cmax(tab+N, len(tab + N), len(tab[0])-1))
-            wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]) + min(pom))
+            wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]) + sum(pom))
         else:
             wynik.append(C[i][len(tab) - 1] + sum(G[i][len(tab):]))
     return max(wynik)
