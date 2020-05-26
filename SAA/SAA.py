@@ -2,6 +2,7 @@ import os
 import re
 import random
 import math
+import copy
 import numpy as np
 
 
@@ -92,15 +93,16 @@ class Node:
 class SAA:
     """Klasa realizująca algorytm symulowanego wyżarzania"""
 
-    def __init__(self, plik):
+    def __init__(self, plik, metoda):
         N = pobierz_dane(plik)
         self.pi = []
         self.n = N[0][0]
         self.m = N[0][1]
+        self.metoda = metoda
         N.remove(N[0])
         i = 0
         for item in N:
-            #self.pi.append([Node(item), i])
+            # self.pi.append([Node(item), i])
             self.pi.append(item[1::2])
             self.pi[self.pi.index(item[1::2])].append(i)
             i += 1
@@ -108,19 +110,28 @@ class SAA:
         self.pi_star = self.pi
         self.cmax_star = Cmax(self.pi_star)
         self.T = 0
-        self.saa(10**4, 50, self.n)#math.sqrt(self.n))
+        self.alfa = 0.97  # tu wpisujemy wartość alfa
+        self.saa(10 ** 4, 10, self.n ** 2)  # math.sqrt(self.n)) # tu wpisujemy z jakimi parametrami uruchomić algorytm
+        # T0, Tend, L
         print(self.cmax_star)
 
     def saa(self, T0, Tend, L):
-        x = T0/(10**3)
+        x = T0 / (10 ** 3)  # tu wpisujemy metode liczenia x
         self.T = T0
         while self.T > Tend:
             for k in range(1, int(L)):
-                i = random.randint(0, self.n-1)
-                j = random.randint(0, self.n-1)
-                pi_new = self.pi
-                pi_new[i], pi_new[j] = pi_new[j], pi_new[i]
+                pi_new = copy.deepcopy(self.pi)
+                i = random.randint(0, self.n - 1)
+                if self.metoda == "adj":
+                    if i < self.n - 1:
+                        pi_new[i], pi_new[i + 1] = pi_new[i + 1], pi_new[i]
+                    else:
+                        pi_new[i], pi_new[i - 1] = pi_new[i - 1], pi_new[i]
+                else:
+                    j = random.randint(0, self.n - 1)
+                    pi_new[i], pi_new[j] = pi_new[j], pi_new[i]
                 new_cmax = Cmax(pi_new)
+                # print("pi",self.pi,"pi_new", pi_new, i, j)
                 if new_cmax[0] > self.cmax[0]:
                     r = random.random()
                     if r >= math.e ** ((self.cmax[0] - new_cmax[0]) / self.T):
@@ -129,12 +140,16 @@ class SAA:
                 self.pi = pi_new
                 self.cmax = new_cmax
                 if self.cmax[0] < self.cmax_star[0]:
-                    self.pi_star = self.pi
-                    self.cmax_star = self.cmax
-            self.T -= x
+                    self.pi_star = copy.deepcopy(self.pi)
+                    self.cmax_star = copy.deepcopy(self.cmax)
+            # self.T -= x                 # tu wybieramy schemat chlodzenia
+            self.T = self.T * self.alfa
 
 
 if __name__ == "__main__":
     pliki = ["data000.txt", "data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt"]
     for item in pliki:
-        SAA(item)
+        SAA(item, "adj")
+    for item in pliki:
+        SAA(item, "swap")
+    # SAA(pliki[0])
