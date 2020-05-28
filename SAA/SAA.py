@@ -3,6 +3,9 @@ import re
 import random
 import math
 import copy
+import time
+from os import listdir
+from os.path import isfile, join
 import numpy as np
 
 
@@ -11,6 +14,7 @@ def pobierz_dane(plik):
     Funkcja zwraca tuplę tupli zawierających dane pobrane z pliku csv
     do zapisania w tabeli.
     """
+    plik = "test_files/" + plik
     dane = []  # deklarujemy pustą listę
     if os.path.isfile(plik):  # sprawdzamy czy plik istnieje na dysku
         with open(plik, "r") as zawartosc:  # otwieramy plik do odczytu
@@ -20,9 +24,15 @@ def pobierz_dane(plik):
                 linia = linia.replace("\r", "")  # usuwamy znaki końca linii
                 linia = re.sub(' +', ' ', linia)  # zamieniamy wiecej niz 1 spacje na pojedyncza
                 linia = linia.lstrip()  # usuwamy pierwsza spacje
+                linia = linia.rstrip()
                 # x =  map(int, linia.split(" "))
                 # x = list(x)                      # tutaj takie wygibasy żeby dodać czwarta liczbę
                 # x.append(i)                      # która jest kolejnością zadań
+                # print(plik[11:len(plik)-4])
+                if linia == plik[11:len(plik) - 4]:
+                    continue
+                if linia == '':
+                    continue
                 dane.append(list(map(int, linia.split(" "))))  # dodajemy elementy do tupli a tuplę do listy
                 # i = i + 1                        # i++ zadania są numerowane od 1 do n
     else:
@@ -111,7 +121,7 @@ class SAA:
         self.cmax_star = Cmax(self.pi_star)
         self.T = 0
         self.alfa = 0.97  # tu wpisujemy wartość alfa
-        self.saa(10 ** 4, 10, self.n ** 2)  # math.sqrt(self.n)) # tu wpisujemy z jakimi parametrami uruchomić algorytm
+        self.saa(10 ** 2, 10, math.sqrt(self.n ** 2))  # math.sqrt(self.n)) # tu wpisujemy z jakimi parametrami uruchomić algorytm
         # T0, Tend, L
         print(self.cmax_star)
 
@@ -131,7 +141,7 @@ class SAA:
                     j = random.randint(0, self.n - 1)
                     pi_new[i], pi_new[j] = pi_new[j], pi_new[i]
                 new_cmax = Cmax(pi_new)
-                # print("pi",self.pi,"pi_new", pi_new, i, j)
+                # print("pi",self.pi,"pi_new", pi_new, i)
                 if new_cmax[0] > self.cmax[0]:
                     r = random.random()
                     if r >= math.e ** ((self.cmax[0] - new_cmax[0]) / self.T):
@@ -145,11 +155,32 @@ class SAA:
             # self.T -= x                 # tu wybieramy schemat chlodzenia
             self.T = self.T * self.alfa
 
+    def SAA_cmax_star(self):
+        return self.cmax_star
+
 
 if __name__ == "__main__":
-    pliki = ["data000.txt", "data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt"]
+    pliki = ["test_files/ta001.txt",
+             "test_files/ta002.txt"]  # , "data000.txt", "data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt"]
+    pliki = [f for f in listdir("test_files/") if isfile(join("test_files/", f))]
+    # Open function to open the file "MyFile1.txt"
+    # (same directory) in read mode and
+    file = open("Wyniki_10_2_sqrt_10_t0_10_-3_097.txt", "w")
+    file.write("adj\n")
     for item in pliki:
-        SAA(item, "adj")
+        start = time.time_ns()
+        wynik = str(SAA(item, "adj").cmax_star)
+        end = time.time_ns()
+        n = (end - start) / 1000000
+        decimals = 14 - len(str(int(n)))
+        czas = '{:.{prec}f}'.format(n, prec=decimals)
+        file.write(item + ", time:" + czas + ", odp:" + wynik + "\n")
+    file.write("swap\n")
     for item in pliki:
-        SAA(item, "swap")
-    # SAA(pliki[0])
+        start = time.time_ns()
+        wynik = str(SAA(item, "swap").cmax_star)
+        end = time.time_ns()
+        n = (end - start) / 1000000
+        decimals = 14 - len(str(int(n)))
+        czas = '{:.{prec}f}'.format(n, prec=decimals)
+        file.write(item + ", time:" + czas + ", odp:" + wynik + "\n")
