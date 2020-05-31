@@ -97,7 +97,7 @@ class Tabu:
         for it in range(0, self.itLimit):
             self.Cbest = math.inf
             for j in range(0, self.n):
-                for k in range(j+1, self.n):
+                for k in range(j + 1, self.n):
                     if self.TabuList[j, k] < it:
                         pi_new = copy.deepcopy(self.pi)
                         pi_new[j], pi_new[k] = pi_new[k], pi_new[j]
@@ -113,12 +113,26 @@ class Tabu:
 
 if __name__ == "__main__":
     pliki = [f for f in listdir("test_files/") if isfile(join("test_files/", f))]
-    file = open("Wyniki_Tabu_100_it.txt", "w")
+    file = open("Wyniki_Tabu_100_it_2.txt", "w")
     file.write("100 it\n")
-    for item in pliki:
+    #for i in range(0, 10):
+    #    start = time.time_ns()
+    #    wynik = str(Cmax(Tabu(pliki[i], 100).pi_star))
+    #    end = time.time_ns()
+    #    n = (end - start) / 1000000
+    #    decimals = 14 - len(str(int(n)))
+    #    czas = '{:.{prec}f}'.format(n, prec=decimals)
+    #    file.write(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+    #    print(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+    i = 100
+    while i < 120:
+        print(pliki[i])
         start = time.time_ns()
-        wynik = str(Cmax(Tabu(item, 100).pi_star))
+        wynik = str(Cmax(Tabu(pliki[i], 100).pi_star))
         end = time.time_ns()
         n = (end - start) / 1000000
         decimals = 14 - len(str(int(n)))
         czas = '{:.{prec}f}'.format(n, prec=decimals)
+        file.write(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+        print(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+        i+=10
