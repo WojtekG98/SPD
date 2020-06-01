@@ -120,8 +120,8 @@ class SAA:
         self.pi_star = self.pi
         self.cmax_star = Cmax(self.pi_star)
         self.T = 0
-        self.alfa = 0.90  # tu wpisujemy wartość alfa
-        self.saa(10 ** 2, 10, self.n)  # tu wpisujemy z jakimi parametrami uruchomić algorytm
+        self.alfa = 0.97  # tu wpisujemy wartość alfa
+        self.saa(10 ** 2, 10, self.n**2)  # tu wpisujemy z jakimi parametrami uruchomić algorytm
         # T0, Tend, L
         print(plik, self.cmax_star)
 
@@ -152,8 +152,8 @@ class SAA:
                 if self.cmax[0] < self.cmax_star[0]:
                     self.pi_star = copy.deepcopy(self.pi)
                     self.cmax_star = copy.deepcopy(self.cmax)
-            self.T -= x                 # tu wybieramy schemat chlodzenia
-            #self.T = self.T * self.alfa
+            #self.T -= x                 # tu wybieramy schemat chlodzenia
+            self.T = self.T * self.alfa
 
     def SAA_cmax_star(self):
         return self.cmax_star
@@ -165,8 +165,8 @@ if __name__ == "__main__":
     pliki = [f for f in listdir("test_files/") if isfile(join("test_files/", f))]
     # Open function to open the file "MyFile1.txt"
     # (same directory) in read mode and
-    file = open("Wyniki_10_2_n_T0_10_-3.txt", "w")
-    file.write("adj\n")
+    file = open("Wyniki_10_2_n_2_alfa_097_swap.txt", "w")
+    #file.write("adj\n")
     #for item in pliki:
     #    start = time.time_ns()
     #    wynik = str(SAA(item, "adj").cmax_star)
@@ -175,26 +175,26 @@ if __name__ == "__main__":
     #    decimals = 14 - len(str(int(n)))
     #    czas = '{:.{prec}f}'.format(n, prec=decimals)
     #    file.write(item + ", time:" + czas + ", odp:" + wynik + "\n")
-    for i in range(0, 10):
-        start = time.time_ns()
-        wynik = str(SAA(pliki[i], "adj").cmax_star)
-        end = time.time_ns()
-        n = (end - start) / 1000000
-        decimals = 14 - len(str(int(n)))
-        czas = '{:.{prec}f}'.format(n, prec=decimals)
-        file.write(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
-        print(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
-    i = 0
-    while i < 120:
-        start = time.time_ns()
-        wynik = str(SAA(pliki[i], "adj").cmax_star)
-        end = time.time_ns()
-        n = (end - start) / 1000000
-        decimals = 14 - len(str(int(n)))
-        czas = '{:.{prec}f}'.format(n, prec=decimals)
-        file.write(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
-        print(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
-        i+=10
+    #for i in range(0, 10):
+    #    start = time.time_ns()
+    #    wynik = str(SAA(pliki[i], "adj").cmax_star)
+    #    end = time.time_ns()
+    #    n = (end - start) / 1000000
+    #    decimals = 14 - len(str(int(n)))
+    #    czas = '{:.{prec}f}'.format(n, prec=decimals)
+    #    file.write(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+    #    print(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+    #i = 0
+    #while i < 120:
+    #    start = time.time_ns()
+    #    wynik = str(SAA(pliki[i], "adj").cmax_star)
+    #    end = time.time_ns()
+    #    n = (end - start) / 1000000
+    #    decimals = 14 - len(str(int(n)))
+    #    czas = '{:.{prec}f}'.format(n, prec=decimals)
+    #    file.write(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+    #    print(pliki[i] + ", time:" + czas + ", odp:" + wynik + "\n")
+    #    i+=10
     file.write("swap\n")
     #for item in pliki:
     #    start = time.time_ns()
